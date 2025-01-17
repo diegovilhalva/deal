@@ -1,5 +1,8 @@
 "use client"
+import { logoutUser } from "@/actions/auth"
+import { User } from "@prisma/client"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
 const AnnouncementBar = () => {
@@ -14,9 +17,15 @@ const AnnouncementBar = () => {
     )
 }
 
-const Header = () => {
+type HeaderProps = {
+    user:Omit<User,'passwordHash'> | null
+}
+
+const Header = ({user}:HeaderProps) => {
+    const router = useRouter()
     const [isOpen, setIsOpen] = useState(false)
     const [prevScrollY, setPrevScrollY] = useState<number>(0)
+    
 
     useEffect(() => {
         const handleScroll = () => {
@@ -65,8 +74,23 @@ const Header = () => {
                                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' />
                                 </svg>
                             </button>
-                            <Link href="/auth/sign-in">Sign in</Link>
-                            <Link href="/auth/sign-up">Sign up</Link>
+                            {user ? (
+                                <div className="flex items-center gap-2 sm:gap-4">
+                                    <span className="text-sm text-gray-700 hidden md:block">{user.email}</span>
+                                    <Link href="#" className="text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900" onClick={async (e) => {
+                                        e.preventDefault()
+                                        await logoutUser()
+                                        router.refresh()
+                                    }}>
+                                        Sign Out
+                                    </Link>
+                                </div>
+                            ) : 
+                            (<>
+                                <Link href="/auth/sign-in" className="text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900">Sign in</Link>
+                                <Link href="/auth/sign-up" className="text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900">Sign up</Link>
+                            </>)}
+                           
                             <button className="text-gray-700 hover:text-gray-900 relative">
                                 <svg xmlns='http://www.w3.org/2000/svg' className='h-5 w-5 sm:h-6 sm:w-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' />
