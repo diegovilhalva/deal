@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
+
 const AnnouncementBar = () => {
     return (
         <div className="w-full bg-black py-2">
@@ -19,9 +20,10 @@ const AnnouncementBar = () => {
 
 type HeaderProps = {
     user:Omit<User,'passwordHash'> | null
+    categorySelector:React.ReactNode
 }
 
-const Header = ({user}:HeaderProps) => {
+const Header = ({user,categorySelector}:HeaderProps) => {
     const router = useRouter()
     const [isOpen, setIsOpen] = useState(false)
     const [prevScrollY, setPrevScrollY] = useState<number>(0)
@@ -62,6 +64,7 @@ const Header = ({user}:HeaderProps) => {
                                 </svg>
                             </button>
                             <nav className='hidden md:flex gap-4 lg:gap-6 text-sm font-medium'>
+                                {categorySelector}
                                 <Link href='#'>Sale</Link>
                             </nav>
                         </div>
