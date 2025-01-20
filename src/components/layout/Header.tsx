@@ -4,6 +4,7 @@ import { User } from "@prisma/client"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import HeaderSearchBar from "./HeaderSearchBar"
 
 
 const AnnouncementBar = () => {
@@ -72,11 +73,7 @@ const Header = ({user,categorySelector}:HeaderProps) => {
                             <span className='text-xl sm:text-2xl font-bold tracking-tight'>DEAL</span>
                         </Link>
                         <div className="flex flex-1 justify-end items-center gap-2 sm:gap-4">
-                            <button className="text-gray-700 hover:text-gray-900 hidden sm:block">
-                                <svg xmlns='http://www.w3.org/2000/svg' className='h-5 w-5 text-gray-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-                                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' />
-                                </svg>
-                            </button>
+                            <HeaderSearchBar />
                             {user ? (
                                 <div className="flex items-center gap-2 sm:gap-4">
                                     <span className="text-sm text-gray-700 hidden md:block">{user.email}</span>
