@@ -129,7 +129,7 @@ const Product = async ({ params }: { params: Promise<{ id: string }> }) => {
                                 Order now before price changes!
                             </div>
                         </div>
-                        <AddToCardButton />
+                        <AddToCardButton product={product} />
                         <div className="flex flex-col gap-3 mt-6 text-sm bg-white p-4 rounded-xl shadow-lg border border-gray-100">
                             <div className="flex items-center gap-3 text-gray-700">
                                 <span className='bg-green-100 p-2 rounded-full'>✅</span>
