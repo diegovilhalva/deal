@@ -1,12 +1,13 @@
 "use client"
 
 import { syncCartWithUser } from "@/actions/cart"
+import { createCheckoutSession } from "@/actions/stripe-actions"
 import { formatPrice } from "@/lib/utils"
 import { useCartStore } from "@/stores/cart-store"
 import { ShoppingCart, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useShallow } from "zustand/shallow"
 
 const freeShippingAmount = 15
@@ -20,7 +21,8 @@ const Cart = () => {
         items,
         updateQuantity,
         removeItem,
-        getTotalPrice
+        getTotalPrice,
+        cartId
     } = useCartStore(
         useShallow((state) => ({
             syncWithUser: state.syncWithUser,
@@ -31,7 +33,8 @@ const Cart = () => {
             items: state.items,
             updateQuantity: state.updateQuantity,
             removeItem: state.removeItem,
-            getTotalPrice: state.getTotalPrice
+            getTotalPrice: state.getTotalPrice,
+            cartId:state.cartId
         }))
     )
     useEffect(() => {
@@ -42,6 +45,22 @@ const Cart = () => {
         }
         initCart()
     }, [])
+    const [loadingProceed, setLoadingProceed] = useState<boolean>(false)
+    const handleProceedToCheckout = async () =>{
+        if (!cartId || loadingProceed) {
+            return
+        }
+
+        const checkoutUrl = await createCheckoutSession(cartId)
+
+        try {
+            
+        } catch (error) {
+            
+        }
+        window.location.href =checkoutUrl
+        setLoadingProceed(false)
+    }
 
     const totalPrice = getTotalPrice()
 
@@ -186,6 +205,7 @@ const Cart = () => {
                                     </div>
                                     <button
                                         className='w-full bg-black text-white py-4 rounded-full font-bold hover:bg-gray-900 transition-colors flex items-center justify-center'
+                                        onClick={handleProceedToCheckout}
                                     >
                                         Proceed to Checkout
                                     </button>
