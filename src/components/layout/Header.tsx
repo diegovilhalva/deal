@@ -5,6 +5,8 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import HeaderSearchBar from "./HeaderSearchBar"
+import { useCartStore } from "@/stores/cart-store"
+import { useShallow } from "zustand/shallow"
 
 
 const AnnouncementBar = () => {
@@ -29,6 +31,12 @@ const Header = ({user,categorySelector}:HeaderProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const [prevScrollY, setPrevScrollY] = useState<number>(0)
     
+    const {open,getTotalItems} = useCartStore(
+        useShallow((state)=>({
+            open:state.open,
+            getTotalItems:state.getTotalItems
+        }))
+    )
 
     useEffect(() => {
         const handleScroll = () => {
@@ -91,11 +99,13 @@ const Header = ({user,categorySelector}:HeaderProps) => {
                                 <Link href="/auth/sign-up" className="text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900">Sign up</Link>
                             </>)}
                            
-                            <button className="text-gray-700 hover:text-gray-900 relative">
+                            <button onClick={() => open()} className="text-gray-700 hover:text-gray-900 relative">
                                 <svg xmlns='http://www.w3.org/2000/svg' className='h-5 w-5 sm:h-6 sm:w-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' />
                                 </svg>
-                                <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] sm:text-xs w-3.5 h-3.5 sm:h-4 sm:w-4 rounded-full flex items-center justify-center">0</span>
+                                <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] sm:text-xs w-3.5 h-3.5 sm:h-4 sm:w-4 rounded-full flex items-center justify-center">
+                                    {getTotalItems()}
+                                </span>
                             </button>
                         </div>
                     </div>

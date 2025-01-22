@@ -43,6 +43,7 @@ export const useCartStore = create<CartStore>()(
                     return
                 }
 
+
                 const updatedCart = await updateCartItem(cartId, item.id, {
                     title: item.title,
                     price: item.price,
@@ -112,8 +113,12 @@ export const useCartStore = create<CartStore>()(
                     )
                 }
                 const syncedCart = await syncCartWithUser(cartId)
-                if(syncedCart){
-                    
+                if (syncedCart) {
+                    set((state) => ({
+                        ...state,
+                        cartId: syncedCart.id,
+                        items: syncedCart.items
+                    }))
                 }
             },
             clearCart: async () => {
