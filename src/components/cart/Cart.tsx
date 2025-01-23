@@ -55,7 +55,7 @@ const Cart = () => {
 
         const checkoutUrl = await createCheckoutSession(cartId)
 
-        try {
+       /* try {
 
             const anyWindow = window as any;
 
@@ -68,7 +68,7 @@ const Cart = () => {
             }
         } catch (error) {
 
-        }
+        }*/
         window.location.href = checkoutUrl
         setLoadingProceed(false)
     }
