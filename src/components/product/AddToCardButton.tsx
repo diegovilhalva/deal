@@ -12,18 +12,18 @@ type AddToCardButtonProps = {
 }
 
 const AddToCardButton = ({ product }: AddToCardButtonProps) => {
-    const {addItem,open} = useCartStore(
+    const { addItem, open } = useCartStore(
         useShallow((state) => ({
-            cartId:state.cartId,
-            addItem:state.addItem,
-            open:state.open
+            cartId: state.cartId,
+            addItem: state.addItem,
+            open: state.open
         })))
     const [isLoading, setIsLoading] = useState(false)
 
     const handleAddToCart = async () => {
         setIsLoading(true)
 
-        if(!product.title || product.price === undefined || !product.image) {
+        if (!product.title || product.price === undefined || !product.image) {
             return;
         }
         await new Promise(resolve => setTimeout(resolve, 600))

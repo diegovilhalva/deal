@@ -1,49 +1,51 @@
-"use server"
+"use server";
 
-import prisma from "@/lib/prisma"
-import { getCurrentSession } from "./auth"
-import { revalidatePath } from "next/cache"
+import { getCurrentSession } from "@/actions/auth";
+import prisma from "@/lib/prisma";
+import { Product } from "@/sanity.types";
+import { urlFor } from "@/sanity/lib/image";
+import { revalidatePath } from "next/cache";
+
 
 export const createCart = async () => {
-    const { user } = await getCurrentSession()
+    const { user } = await getCurrentSession();
 
     const cart = await prisma.cart.create({
         data: {
             id: crypto.randomUUID(),
             user: user ? { connect: { id: user.id } } : undefined,
             items: {
-                create: []
+                create: [],
             }
         },
         include: {
-            items: true
+            items: true,
         }
-    })
+    });
 
-    return cart
+    return cart;
 }
 
-
 export const getOrCreateCart = async (cartId?: string | null) => {
-    const { user } = await getCurrentSession()
+    const { user } = await getCurrentSession();
 
-    if (user) {
+    if(user) {
         const userCart = await prisma.cart.findUnique({
             where: {
-                userId: user.id
+                userId: user.id,
             },
             include: {
-                items: true
+                items: true,
             }
-        })
+        });
 
-        if (userCart) {
-            return userCart
+        if(userCart) {
+            return userCart;
         }
     }
 
-    if (!cartId) {
-        return createCart()
+    if(!cartId) {
+        return createCart();
     }
 
     const cart = await prisma.cart.findUnique({
@@ -51,37 +53,42 @@ export const getOrCreateCart = async (cartId?: string | null) => {
             id: cartId
         },
         include: {
-            items: true
+            items: true,
         }
-    })
+    });
 
-    if (!cart) {
-        return createCart()
+    if(!cart) {
+        return createCart();
     }
 
-    return cart
+    return cart;
 }
 
-export const updateCartItem = async (cartId: string, sanityProductId: string, data: {
-    title?: string,
-    price?: number,
-    image?: string,
-    quantity?: number
-}) => {
-    const cart = await getOrCreateCart()
+export const updateCartItem = async (
+    cartId: string,
+    sanityProductId: string,
+    data: {
+        title?: string,
+        price?: number,
+        image?: string,
+        quantity?: number,
+    }
+) => {
+    const cart = await getOrCreateCart(cartId);
 
     const existingItem = cart.items.find(
         (item) => sanityProductId === item.sanityProductId
-    )
+    );
 
-    if (existingItem) {
-        if (data.quantity === 0) {
+    if(existingItem) {
+        // Update quantity
+        if(data.quantity === 0) {
             await prisma.cartLineItem.delete({
                 where: {
                     id: existingItem.id
                 }
             })
-        } else if (data.quantity && data.quantity > 0) {
+        } else if(data.quantity && data.quantity > 0) {
             await prisma.cartLineItem.update({
                 where: {
                     id: existingItem.id
@@ -90,30 +97,30 @@ export const updateCartItem = async (cartId: string, sanityProductId: string, da
                     quantity: data.quantity
                 }
             })
-        } else if (data.quantity && data.quantity > 0) {
-            await prisma.cartLineItem.create({
-                data: {
-                    id: crypto.randomUUID(),
-                    cartId: cart.id,
-                    sanityProductId,
-                    quantity: data.quantity || 1,
-                    title: data.title || '',
-                    price: data.price || 0,
-                    image: data.image || '',
-                }
-            })
         }
+    } else if(data.quantity && data.quantity > 0) {
+        await prisma.cartLineItem.create({
+            data: {
+                id: crypto.randomUUID(),
+                cartId: cart.id,
+                sanityProductId,
+                quantity: data.quantity || 1,
+                title: data.title || '',
+                price: data.price || 0,
+                image: data.image || '',
+            }
+        });
     }
-    revalidatePath("/")
-    return getOrCreateCart(cartId)
+
+    revalidatePath("/");
+    return getOrCreateCart(cartId);
 }
 
-
 export const syncCartWithUser = async (cartId: string | null) => {
-    const { user } = await getCurrentSession()
+    const { user } = await getCurrentSession();
 
-    if (!user) {
-        return null
+    if(!user) {
+        return null;
     }
 
     const existingUserCart = await prisma.cart.findUnique({
@@ -121,36 +128,37 @@ export const syncCartWithUser = async (cartId: string | null) => {
             userId: user.id
         },
         include: {
-            items: true
+            items: true,
         }
-    })
+    });
 
     const existingAnonymousCart = cartId ? await prisma.cart.findUnique({
         where: {
-            id: cartId
+            id: cartId,
         },
         include: {
-            items: true
+            items: true,
         }
-    }) : null
+    }) : null;
 
-    if (!cartId && existingUserCart) {
-        return existingUserCart
+    if(!cartId && existingUserCart) {
+        return existingUserCart;
     }
 
-    if (!cartId) {
-        return createCart()
+    if(!cartId) {
+        // !cartId && !existingUserCart
+        return createCart();
     }
 
-    if (!existingAnonymousCart && !existingUserCart) {
-        return createCart()
+    if(!existingAnonymousCart && !existingUserCart) {
+        return createCart();
     }
 
-    if (existingUserCart && existingUserCart.id === cartId) {
-        return existingUserCart
+    if(existingUserCart && existingUserCart.id === cartId) {
+        return existingUserCart;
     }
 
-    if (!existingUserCart) {
+    if(!existingUserCart) {
         const newCart = await prisma.cart.update({
             where: {
                 id: cartId
@@ -163,21 +171,21 @@ export const syncCartWithUser = async (cartId: string | null) => {
                 }
             },
             include: {
-                items: true
+                items: true,
             }
-        })
-        return newCart
-
+        });
+        return newCart;
     }
 
-    if (!existingAnonymousCart) {
-        return existingUserCart
+    if(!existingAnonymousCart) {
+        return existingUserCart;
     }
 
-    for (const item of existingAnonymousCart.items) {
-        const existingItem = existingUserCart.items.find((item) => item.sanityProductId === item.sanityProductId)
+    for(const item of existingAnonymousCart.items) {
+        const existingItem = existingUserCart.items.find((item) => item.sanityProductId === item.sanityProductId);
 
-        if (existingItem) {
+        if(existingItem) {
+            // add two cart quantities together
             await prisma.cartLineItem.update({
                 where: {
                     id: existingItem.id
@@ -186,9 +194,8 @@ export const syncCartWithUser = async (cartId: string | null) => {
                     quantity: existingItem.quantity + item.quantity
                 }
             })
-
-
         } else {
+            // add non-existing item to the user's cart
             await prisma.cartLineItem.create({
                 data: {
                     id: crypto.randomUUID(),
@@ -211,5 +218,18 @@ export const syncCartWithUser = async (cartId: string | null) => {
 
     revalidatePath("/");
     return getOrCreateCart(existingUserCart.id);
+}
 
+export const addWinningItemToCart = async (cartId: string, product: Product) => {
+
+    const cart = await getOrCreateCart(cartId);
+
+    const updatedCart = await updateCartItem(cart.id, product._id, {
+        title: `🎁 ${product.title} (Won)`,
+        price: 0,
+        image: product.image ? urlFor(product.image).url() : '',
+        quantity: 1,
+    });
+
+    return updatedCart;
 }
