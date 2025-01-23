@@ -4,7 +4,7 @@ import { syncCartWithUser } from "@/actions/cart"
 import { createCheckoutSession } from "@/actions/stripe-actions"
 import { formatPrice } from "@/lib/utils"
 import { useCartStore } from "@/stores/cart-store"
-import { ShoppingCart, X } from "lucide-react"
+import { Loader2, ShoppingCart, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
@@ -34,7 +34,7 @@ const Cart = () => {
             updateQuantity: state.updateQuantity,
             removeItem: state.removeItem,
             getTotalPrice: state.getTotalPrice,
-            cartId:state.cartId
+            cartId: state.cartId
         }))
     )
     useEffect(() => {
@@ -46,19 +46,30 @@ const Cart = () => {
         initCart()
     }, [])
     const [loadingProceed, setLoadingProceed] = useState<boolean>(false)
-    const handleProceedToCheckout = async () =>{
+    const handleProceedToCheckout = async () => {
         if (!cartId || loadingProceed) {
             return
         }
 
+        setLoadingProceed(true)
+
         const checkoutUrl = await createCheckoutSession(cartId)
 
         try {
-            
+
+            const anyWindow = window as any;
+
+            if(anyWindow.umami) {
+                anyWindow.umami.track('proceed_to_checkout', {
+                    cartId: cartId,
+                    totalPrice: getTotalPrice(),
+                    currency: 'USD',
+                })
+            }
         } catch (error) {
-            
+
         }
-        window.location.href =checkoutUrl
+        window.location.href = checkoutUrl
         setLoadingProceed(false)
     }
 
@@ -206,8 +217,17 @@ const Cart = () => {
                                     <button
                                         className='w-full bg-black text-white py-4 rounded-full font-bold hover:bg-gray-900 transition-colors flex items-center justify-center'
                                         onClick={handleProceedToCheckout}
+                                        disabled={loadingProceed}
                                     >
-                                        Proceed to Checkout
+                                        {loadingProceed  ? (
+                                            <div className="flex items-center gap-1">
+                                                Navigating to checkout
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                            </div>
+                                        ) :(
+                                            'Proceed to Checkout'
+                                        )}
+                                        
                                     </button>
                                     <div className='mt-4 space-y-2'>
                                         <div className='flex items-center gap-2 text-sm text-gray-500'>
