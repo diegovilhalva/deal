@@ -12,7 +12,7 @@ type AddToCardButtonProps = {
 }
 
 const AddToCardButton = ({ product }: AddToCardButtonProps) => {
-    const { addItem, open } = useCartStore(
+    const { addItem, open,cartId } = useCartStore(
         useShallow((state) => ({
             cartId: state.cartId,
             addItem: state.addItem,
@@ -35,6 +35,20 @@ const AddToCardButton = ({ product }: AddToCardButtonProps) => {
             image: urlFor(product.image).url(),
             quantity: 1,
         })
+
+        try {
+            const anyWindow = window as any;
+
+            if (anyWindow.umami) {
+                anyWindow.umami.track('add_to_cart', {
+                    cartId: cartId,
+                    productId: product._id,
+                    productName: product.title,
+                    price: product.price,
+                    currency: 'USD',
+                })
+            }
+        } catch (e) { }
 
         setIsLoading(false)
     }

@@ -111,7 +111,7 @@ const WinningItem = ({ product, onClose }: {product: Product, onClose: () => voi
         localStorage.setItem("has-played-wheel-of-fortune", 'true');
 
         setStore(updatedCart);
-           
+
         await new Promise(resolve => setTimeout(resolve, 500));
         router.refresh();
         openCart();
@@ -296,7 +296,7 @@ const WheelOfFortune = ({ products, winningIndex }: WheelOfFortuneProps) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogContent className='sm:max-w-[800px] p-0'>
+            <DialogContent className='sm:max-w-[800px] lg:max-w-[900px] p-0'>
                 <DialogTitle>
                     <div className='p-6 text-center relative overflow-hidden'>
                         <div className='absolute inset-0 bg-gradient-to-r from-red-500/20 to-orange-500/20 animate-pulse' />

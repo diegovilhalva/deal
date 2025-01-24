@@ -6,6 +6,9 @@ import { getCurrentSession } from "@/actions/auth";
 import { SanityLive } from "@/sanity/lib/live";
 import HeaderCategorySelector from "@/components/layout/HeaderCategorySelector";
 import Cart from "@/components/cart/Cart";
+import Script from "next/script";
+import { Suspense } from "react";
+import AnalyticsTracker from "@/components/layout/AnalytcsTracker";
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -26,6 +29,10 @@ const RootLayout = async ({children}:Readonly<{children:React.ReactNode}>) => {
       >
         <Header user={user} categorySelector={<HeaderCategorySelector  />}  />
         {children}
+        <Script src="https://cloud.umami.is/script.js"  data-website-id="77f50e66-39de-4a54-952f-2de40dc464aa" strategy="beforeInteractive" />
+        <Suspense>
+          <AnalyticsTracker user={user} />
+        </Suspense>
         <Cart />
         <SanityLive/>
       </body>
