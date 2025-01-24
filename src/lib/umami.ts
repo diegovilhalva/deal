@@ -1,7 +1,7 @@
 import umami from "@umami/node"
 
 umami.init({
-    websiteId: process.env.UMAMI_WEBSITE_ID!,
+    websiteId: process.env.UMAMI_WEBSITE_ID as string,
     hostUrl: 'https://cloud.umami.is',
 });
 
