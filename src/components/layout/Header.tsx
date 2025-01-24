@@ -77,8 +77,8 @@ const Header = ({user,categorySelector}:HeaderProps) => {
                                 <Link href='#'>Sale</Link>
                             </nav>
                         </div>
-                        <Link href='#' className='absolute left-1/2 -translate-x-1/2'>
-                            <span className='text-xl sm:text-2xl font-bold tracking-tight'>DEAL</span>
+                        <Link href="/" className="text-xl sm:text-2xl font-bold tracking-tight flex-1 text-center md:flex-none md:text-left">
+                            DEAL
                         </Link>
                         <div className="flex flex-1 justify-end items-center gap-2 sm:gap-4">
                             <HeaderSearchBar />
